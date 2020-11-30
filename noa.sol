@@ -835,12 +835,6 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
             365 days,  730 days, 1460 days, 2190 days, 2920 days, 
             3650 days, 4380 days, 4380 days, 4380 days, 4380 days
         ]);
-        
-        times.push([
-            // For Dev
-            1 minutes, 2 minutes, 3 minutes, 4 minutes, 5 minutes, 
-            6 minutes, 7 minutes, 8 minutes, 9 minutes, 10 minutes
-        ]);
 
         publishedTimeStamp =  block.timestamp;
     }
@@ -941,12 +935,7 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
            item.totalSupplyLocked = (uint(_totalOfAmount) /  100) * 50;
            item.initialRate = 20;
            item.increaseRate = 20;
-       } else if(ruleId == TEST_RULE) { 
-           item.isEnabled = true;
-           item.totalSupplyLocked = (uint(_totalOfAmount) /  100) * 10;
-           item.initialRate = 0;
-           item.increaseRate= 20;
-       }
+       } 
        
        listOfLocked[targetAddr] = item;
     }
