@@ -858,6 +858,12 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
         return (uint(listOfLocked[targetAddr].totalSupplyLocked) /  100) * p;
     }
    
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool) {
+        require(_from != vault);
+        require(_value <= balanceOf(_from).sub(reserves[_from]));
+        return super.transferFrom(_from, _to, _value);
+    }
+    
     function transfer(address _to, uint256 _value) public returns (bool) {
         require(address(msg.sender) != address(_to));
         
