@@ -1,5 +1,5 @@
 /**
- *Submitted for verification at Etherscan.io on 2020-01-22
+ *Submitted for verification at Etherscan.io on 2020-12-08
 */
 
 // File: @openzeppelin/contracts/GSN/Context.sol
@@ -714,10 +714,7 @@ contract ERC20Detailed is IERC20 {
     }
 }
 
-// File: contracts/PlayXCoin.sol
-
 pragma solidity >=0.5.0;
-
 
 
 /**
@@ -758,10 +755,9 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
 
     uint8 SALES_RULE    = 0;
     uint8 TEAM_RULE     = 1;
-    uint8 ADVISOR_RULE  = 2;
+    uint8 ADVISER_RULE  = 2;
     uint8 PARTNER_RULE  = 3;
     uint8 RESERVE_RULE  = 4;
-    uint8 TEST_RULE     = 5;
     
     uint32[10][] times;
     
@@ -819,7 +815,7 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
         ]);
         
         times.push([
-            // Advisor 
+            // Adviser 
             150 days, 240 days, 330 days, 420 days, 510 days, 
             600 days, 690 days, 780 days, 870 days, 960 days
         ]);
@@ -832,8 +828,8 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
         
         times.push([
             // Reserve
-            365 days,  730 days, 1460 days, 2190 days, 2920 days, 
-            3650 days, 4380 days, 4380 days, 4380 days, 4380 days
+            365 days,  730 days, 1095 days, 1460 days, 1825 days, 
+            2190 days, 2555 days, 2920 days, 3285 days, 3650 days
         ]);
 
         publishedTimeStamp =  block.timestamp;
@@ -905,7 +901,6 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
     }
     
     function setLockup(uint8 ruleId, address targetAddr) onlyOwner public {
-    
       require(ruleId >= SALES_RULE && ruleId < times.length);
       require(targetAddr != address(0));
 
@@ -926,7 +921,7 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
            item.totalSupplyLocked = (uint(_totalOfAmount) /  100) * 16;
            item.initialRate = 20;
            item.increaseRate = 10;
-       } else if(ruleId == ADVISOR_RULE) { 
+       } else if(ruleId == ADVISER_RULE) { 
            item.isEnabled = true;
            item.totalSupplyLocked = (uint(_totalOfAmount) /  100) * 5;
            item.initialRate = 20;
