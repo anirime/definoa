@@ -1,6 +1,3 @@
-/**
- *Submitted for verification at Etherscan.io on 2020-12-08
-*/
 
 // File: @openzeppelin/contracts/GSN/Context.sol
 
@@ -24,11 +21,6 @@ contract Context {
 
     function _msgSender() internal view returns (address payable) {
         return msg.sender;
-    }
-
-    function _msgData() internal view returns (bytes memory) {
-        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
-        return msg.data;
     }
 }
 
@@ -109,6 +101,8 @@ interface IERC20 {
      * a call to {approve}. `value` is the new allowance.
      */
     event Approval(address indexed owner, address indexed spender, uint256 value);
+    
+    event Mint(address indexed account, uint256 amount);
 }
 
 // File: @openzeppelin/contracts/math/SafeMath.sol
@@ -448,26 +442,9 @@ contract ERC20 is Context, IERC20 {
 
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
+        
         emit Transfer(address(0), account, amount);
-    }
-
-     /**
-     * @dev Destroys `amount` tokens from `account`, reducing the
-     * total supply.
-     *
-     * Emits a {Transfer} event with `to` set to the zero address.
-     *
-     * Requirements
-     *
-     * - `account` cannot be the zero address.
-     * - `account` must have at least `amount` tokens.
-     */
-    function _burn(address account, uint256 amount) internal {
-        require(account != address(0), "ERC20: burn from the zero address");
-
-        _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
-        _totalSupply = _totalSupply.sub(amount);
-        emit Transfer(account, address(0), amount);
+        emit Mint(account, amount);
     }
 
     /**
@@ -489,17 +466,6 @@ contract ERC20 is Context, IERC20 {
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
-    }
-
-    /**
-     * @dev Destroys `amount` tokens from `account`.`amount` is then deducted
-     * from the caller's allowance.
-     *
-     * See {_burn} and {_approve}.
-     */
-    function _burnFrom(address account, uint256 amount) internal {
-        _burn(account, amount);
-        _approve(account, _msgSender(), _allowances[account][_msgSender()].sub(amount, "ERC20: burn amount exceeds allowance"));
     }
 }
 
@@ -569,16 +535,6 @@ contract MinterRole is Context {
         return _minters.has(account);
     }
 
-    /*
-    function addMinter(address account) public onlyMinter {
-        _addMinter(account);
-    }
-    
-    function renounceMinter() public {
-        _removeMinter(_msgSender());
-    }
-    */
-
     function _addMinter(address account) internal {
         _minters.add(account);
         emit MinterAdded(account);
@@ -603,8 +559,9 @@ pragma solidity ^0.5.0;
  * At construction, the deployer of the contract is the only minter.
  */
 contract ERC20Mintable is ERC20, MinterRole {
+    
     /**
-     * @dev See {ERC20-_mint}.
+     * @dev See {ERC20-_mint}.amount
      *
      * Requirements:
      *
@@ -721,7 +678,7 @@ pragma solidity >=0.5.0;
  * @title NOA contract 
  */
 contract NOAToken is ERC20Capped, ERC20Detailed {
-    uint noOfTokens = 1000000000; // 1,000,000,000 (1B)    
+    uint noOfTokens = 1000000000; // 1,000,000,000   
     
     uint publishedTimeStamp =  0;
 
@@ -735,12 +692,6 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
     address internal bounty;
     address internal partner;
     address internal reserved;
-
-    event OwnerChanged(address indexed previousOwner, address indexed newOwner);
-    event VaultChanged(address indexed previousVault, address indexed newVault);
-    event AdminChanged(address indexed previousAdmin, address indexed newAdmin);
-    event ReserveChanged(address indexed _address, uint amount);
-    event Recalled(address indexed from, uint amount);
 
     struct lockup {
         address addr;
@@ -831,7 +782,7 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
             365 days,  730 days, 1095 days, 1460 days, 1825 days, 
             2190 days, 2555 days, 2920 days, 3285 days, 3650 days
         ]);
-
+        
         publishedTimeStamp =  block.timestamp;
     }
 
@@ -839,10 +790,11 @@ contract NOAToken is ERC20Capped, ERC20Detailed {
         uint256 p = 0;
         uint utcNow = now;
         uint k = 0;
-        for(k = 0 ; k < times.length ; k++) {
-            uint8 id = listOfLocked[targetAddr].rule;
-            uint32[10] memory lockupTable = times[id];
-                
+        
+        uint8 id = listOfLocked[targetAddr].rule;
+        uint32[10] memory lockupTable = times[id];
+            
+        for(k = 0 ; k < lockupTable.length ; k++) {
             if( (utcNow - publishedTimeStamp) >= lockupTable[k] ) {
                 p = listOfLocked[targetAddr].initialRate + (k* listOfLocked[targetAddr].increaseRate);
             } else {
